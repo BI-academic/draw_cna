@@ -8,6 +8,7 @@
 import numpy as np
 import pandas as pd
 import seaborn as sns
+from typing import Union
 from matplotlib import pyplot as plt
 
 
@@ -40,7 +41,8 @@ class PlotCNV:
             data: pd.DataFrame, 
             x: str, 
             y: str, 
-            chrom_list: list = None,
+            chrom_list : list = [],
+            #chrom_list: Union[list, str] = None, # but recommended using pydantic
             y2: str = None,
             figsize: tuple = (24,3), 
             linestyle: str = "long dash with offset",
@@ -54,14 +56,21 @@ class PlotCNV:
         ref_chrom_list = [f"chr{x}" for x in range(1,23)] + ["chrX", "chrY"]
         ref_ratio_list = [5, 5, 4, 4, 4, 4, 3, 3, 3, 3, 3, 3, 2, 2, 2, 2, 2, 2, 1, 1, 1, 1, 3, 0.5]
         ref_ratio_dict = {k:v for k,v in zip(ref_chrom_list, ref_ratio_list)}
-        if chrom_list is None:
+
+        if chrom_list == []:
             target_ratio_list = ref_ratio_list
             chrom_list = ref_chrom_list
-        elif type(chrom_list) == list:
+        else:
             target_ratio_list = [ref_ratio_dict[x] for x in chrom_list]
-        elif type(chrom_list) == str:
-            target_ratio_list = [ref_ratio_dict[chrom_list]]
-            chrom_list = [chrom_list]
+
+        # if chrom_list is None: # All targets
+        #     target_ratio_list = ref_ratio_list
+        #     chrom_list = ref_chrom_list
+        # elif isinstance(chrom_list, list): # target range
+        #     target_ratio_list = [ref_ratio_dict[x] for x in chrom_list]
+        # elif isinstance(chrom_list, str): # One target
+        #     target_ratio_list = [ref_ratio_dict[chrom_list]]
+        #     chrom_list = [chrom_list]
 
         # change datapoint to 2N
         data[y] *= 2
@@ -81,7 +90,7 @@ class PlotCNV:
         else:
             # color_pal = ["black" if i % 2 == 0 else "gray" for i in range(len(chrom_list))]
             color_pal = ["#000000" if i % 2 == 0 else "#616161" for i in range(len(chrom_list))]
-        if not y2_color:
+        if y2_color is None:
             y2_color = "green"
             # y2_color = "#00c853"
 
